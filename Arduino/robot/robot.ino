@@ -18,12 +18,13 @@ void setup()
   nh.initNode();
   nh.advertise(ext);
   pinMode(A0,INPUT);
+  angulos.data_length = 1;
 }
 void loop()
 {
   veri=analogRead(A0);
   angulos.data[0]=veri
-  nh.spinOnce();
   ext.publish(& angulos);
+  nh.spinOnce();
   delay(500);
 }
