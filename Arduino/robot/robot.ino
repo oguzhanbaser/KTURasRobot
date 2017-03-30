@@ -9,13 +9,13 @@
 ros::NodeHandle nh;
 
 std_msgs::Float32MultiArray value;
-ros::Publisher ext("node", &value);
+ros::Publisher ext_sub("node", &value);
 
 float veri;
 void setup()
 {
   nh.initNode();
-  nh.advertise(ext);
+  nh.advertise(ext_sub);
   pinMode(A0,INPUT);
   value.data_length = 1;
 }
