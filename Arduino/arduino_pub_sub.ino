@@ -44,7 +44,7 @@ void loop() {
 
   for (int i = 0; i < 6; i++)
   {
-    dizi[i] = String(255);
+    dizi[i] = String(analogRead(analog[i]));
   }
   
   sendSens = "#" + dizi[0] + "|" + dizi[1] + "|" + dizi[2] + "|" + dizi[3] + "|" + dizi[4] + "|" + dizi[5] ;
