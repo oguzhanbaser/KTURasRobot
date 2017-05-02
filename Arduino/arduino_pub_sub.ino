@@ -48,7 +48,7 @@ void loop() {
   }
   
   sendSens = "#" + dizi[0] + "|" + dizi[1] + "|" + dizi[2] + "|" + dizi[3] + "|" + dizi[4] + "|" + dizi[5] ;
-  if(millis() - zaman >2000)
+  if(millis() - zaman >1000)
   {
   sendSens.toCharArray(sendSensor, 50);
   sendSerial.toCharArray(sendValue, 10);
