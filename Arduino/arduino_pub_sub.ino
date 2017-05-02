@@ -48,18 +48,18 @@ void loop() {
   }
   
   sendSens = "#" + dizi[0] + "|" + dizi[1] + "|" + dizi[2] + "|" + dizi[3] + "|" + dizi[4] + "|" + dizi[5] ;
-  if(millis() - zaman >1000)
+  if(millis() - zaman >2000)
   {
   sendSens.toCharArray(sendSensor, 50);
   sendSerial.toCharArray(sendValue, 10);
   zaman = millis();
-  }
+  
   // str_msg.data = sendValue; Serial Monitör için
   str_msg.data = sendSensor;
   
   talk.publish( &str_msg );
   nh.spinOnce();
-  
+  }
   
   return 0;
 }
