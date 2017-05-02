@@ -9,6 +9,13 @@ void chatterCallback(const std_msgs::String::ConstPtr& value)
 
 {
   ROS_INFO("GelenVeri: [%s]", value->data.c_str());
+
+  std::string value1 = value->data.substr(1,3);
+  std::string value2 = value->data.substr(4,6);
+  std::string value3 = value->data.substr(7,9);
+  std::string value4 = value->data.substr(10,12);
+  std::string value5 = value->data.substr(13,15);
+
 }
 
 
