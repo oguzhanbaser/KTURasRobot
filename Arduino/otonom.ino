@@ -49,7 +49,7 @@ void controlMessage( const geometry_msgs::Twist& msg){
   driveMotor(hiz, aci);
 }
 
-ros::Subscriber<geometry_msgs::Twist> sub("robot_steering", &controlMessage );
+ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", &controlMessage );
 
 double readUltraSonic(int pIndex)
 {
