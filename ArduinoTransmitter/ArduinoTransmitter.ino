@@ -20,6 +20,10 @@ void setup() {
   pinMode(swPin2, INPUT_PULLUP);
   pinMode(swPin3, INPUT_PULLUP);
   pinMode(swPin4, INPUT_PULLUP);
+
+  pinMode(9, OUTPUT);
+  pinMode(8, OUTPUT);
+  
 }
 
 void loop() {
@@ -36,11 +40,14 @@ void loop() {
   int swVal4 = digitalRead(swPin4);
 
 
-  bool manuelControl = !swVal1;
+  bool manuelControl = !swVal3;
+  bool autoControl = !swVal1;
+  bool standby = !swVal2;
 
-  if(manuelControl)
-  {
-    //manuel kontrol ledi aktif
+  if(manuelControl){
+    
+    digitalWrite(9, HIGH);
+    digitalWrite(8, LOW);
 
     int speedVal = map(valX1, 0, 1023, 0, maxSpeed);
     int angleVal = map(valY1, 0, 1023, 60, 120);
@@ -50,6 +57,17 @@ void loop() {
     xBeeSerial.print(speedVal * motorDir);
     xBeeSerial.print("|");
     xBeeSerial.println(angleVal);
+  }
+  else if(autoControl){
+    xBeeSerial.print("$"); 
+    digitalWrite(9, LOW);
+    digitalWrite(8, HIGH);
+      
+  }
+  else{
+    xBeeSerial.print("x");
+    digitalWrite(9, LOW);
+    digitalWrite(8, LOW);
   }
   
 //  Serial.print(swVal1);
