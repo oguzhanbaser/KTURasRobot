@@ -19,7 +19,7 @@ bool g = 1;
 ros::NodeHandle nh;
 
 std_msgs::Float32MultiArray angulos;
-ros::Publisher angulos_pub("otonom", &angulos);
+ros::Publisher angulos_pub("sensors", &angulos);
 
 Servo servo1;
 int motorDir2 = 45;
