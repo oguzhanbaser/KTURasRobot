@@ -2,6 +2,7 @@
 #include <NewPing.h>
 #include <ros.h>
 #include <std_msgs/Float32MultiArray.h>
+#include <geometry_msgs/Twist.h>
 
 #define SONAR_NUM 3      // Number of sensors.
 #define MAX_DISTANCE 200 // Maximum distance (in cm) to ping.
@@ -13,6 +14,8 @@
 #define MIDDLE 1
 #define LEFT 2
 
+bool g = 1;
+
 ros::NodeHandle nh;
 
 std_msgs::Float32MultiArray angulos;
@@ -22,6 +25,7 @@ Servo servo1;
 int motorDir2 = 45;
 int motorDir1 = 43;
 int motorPWM = 2;
+int hiz, aci;
 
 int led1 = 53, led2 = 51, led3 = 49, led4 = 47;
 
@@ -37,6 +41,15 @@ NewPing sonar[SONAR_NUM] = {   // Sensor object array.
 unsigned long lastTime = 0, lastTimeUltrasonic = 0, lastTime2 = 0;
 float dists[3];
 int cnt = 0;
+
+void controlMessage( const geometry_msgs::Twist& msg){
+  
+  hiz = (int)(msg.linear.x*20);
+  aci = (int)(msg.angular.z*10)+90;
+  driveMotor(hiz, aci);
+}
+
+ros::Subscriber<geometry_msgs::Twist> sub("robot_steering", &controlMessage );
 
 double readUltraSonic(int pIndex)
 {
@@ -81,6 +94,7 @@ void setup() {
   angulos.data = (float *)malloc(sizeof(float) * 4);
   angulos.data_length = 4;
   nh.advertise(angulos_pub);
+  nh.subscribe(sub);
 
 }
 
@@ -140,13 +154,13 @@ void loop() {
   //  }
 
   // put your main code here, to run repeatedly:
-  if (millis() - lastTime > 2000)
+/*  if (millis() - lastTime > 2000)
   {
     int sVal = 0;
     int aVal = 90;
-    driveMotor(sVal, aVal);
+    //driveMotor(sVal, aVal);
   }
-
+*/
   if (millis() - lastTimeUltrasonic > 100)
   {
     dists[cnt] = readUltraSonic(cnt);
@@ -185,6 +199,9 @@ void loop() {
       case '#':
         sVal = Serial3.parseInt();
         aVal = Serial3.parseInt();
+
+        if(sVal < 0) g = 0;
+        else g = 1;
 
         //if (checkDistance(20))
         driveMotor(sVal, aVal);
@@ -232,19 +249,22 @@ void loop() {
 
         driveMotor(sVal, aVal);
         break;
+      case '$':
+        angulos_pub.publish(&angulos);
+        nh.spinOnce();
+        break;  
     }
 
-  } else if (!checkDistance(limitDistance))
+  } else if (!checkDistance(limitDistance) && g)
   {
     int sVal = 0, aVal = 90;
     driveMotor(sVal, aVal);
   }
+  
+//if(millis() - lastTime2 > 200){
 
-if(millis() - lastTime2 > 200){
-
-  angulos_pub.publish(&angulos);
-  nh.spinOnce();
-  lastTime2 = millis();
-}
-
+  
+//lastTime2 = millis();
+//}
+  
 }
