@@ -14,7 +14,9 @@
 #define MIDDLE 1
 #define LEFT 2
 
-#if !MAKE_TEST
+//#define MAKE_TEST
+
+#ifndef MAKE_TEST
 //use serial1 as a node client
 class NewHardware : public ArduinoHardware
 {
