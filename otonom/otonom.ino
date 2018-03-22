@@ -14,9 +14,20 @@
 #define MIDDLE 1
 #define LEFT 2
 
-bool g = 1;
+#if !MAKE_TEST
+//use serial1 as a node client
+class NewHardware : public ArduinoHardware
+{
+  public:
+    NewHardware() : ArduinoHardware(&Serial1, 57600) {};
+};
 
+ros::NodeHandle_<NewHardware>  nh;
+#else
 ros::NodeHandle nh;
+#endif
+
+bool g = 1;
 
 std_msgs::Float32MultiArray angulos;
 ros::Publisher angulos_pub("sensors", &angulos);
@@ -42,10 +53,10 @@ unsigned long lastTime = 0, lastTimeUltrasonic = 0, lastTime2 = 0;
 float dists[3];
 int cnt = 0;
 
-void controlMessage( const geometry_msgs::Twist& msg){
-  
-  hiz = (int)(msg.linear.x*20);
-  aci = (int)(msg.angular.z*10)+90;
+void controlMessage( const geometry_msgs::Twist& msg) {
+
+  hiz = (int)(msg.linear.x * 20);
+  aci = (int)(msg.angular.z * 10) + 90;
   driveMotor(hiz, aci);
 }
 
@@ -71,7 +82,7 @@ double readUltraSonic(int p_echo, int p_trig)
 
 void setup() {
   // put your setup code here, to run once:
-  
+
   nh.initNode();
 
   for (int i = 0; i < 3; i++)
@@ -88,7 +99,7 @@ void setup() {
   pinMode(led2, OUTPUT);
   pinMode(led3, OUTPUT);
   pinMode(led4, OUTPUT);
-//  Serial.begin(9600);
+  //  Serial.begin(9600);
   Serial3.begin(9600);
 
   angulos.data = (float *)malloc(sizeof(float) * 4);
@@ -154,21 +165,21 @@ void loop() {
   //  }
 
   // put your main code here, to run repeatedly:
-/*  if (millis() - lastTime > 2000)
-  {
-    int sVal = 0;
-    int aVal = 90;
-    //driveMotor(sVal, aVal);
-  }
-*/
+  /*  if (millis() - lastTime > 2000)
+    {
+      int sVal = 0;
+      int aVal = 90;
+      //driveMotor(sVal, aVal);
+    }
+  */
   if (millis() - lastTimeUltrasonic > 100)
   {
     dists[cnt] = readUltraSonic(cnt);
 
     angulos.data[cnt] = dists[cnt];
 
-//    Serial.print(dists[cnt]);
-//    Serial.print(", ");
+    //    Serial.print(dists[cnt]);
+    //    Serial.print(", ");
 
     Serial3.print("#|");
     Serial3.print(dists[0]);
@@ -182,7 +193,7 @@ void loop() {
     if (cnt > 2)
     {
       cnt = 0;
-//      Serial.println();
+      //      Serial.println();
     }
     lastTimeUltrasonic = millis();
   }
@@ -200,7 +211,7 @@ void loop() {
         sVal = Serial3.parseInt();
         aVal = Serial3.parseInt();
 
-        if(sVal < 0) g = 0;
+        if (sVal < 0) g = 0;
         else g = 1;
 
         //if (checkDistance(20))
@@ -250,9 +261,7 @@ void loop() {
         driveMotor(sVal, aVal);
         break;
       case '$':
-        angulos_pub.publish(&angulos);
-        nh.spinOnce();
-        break;  
+        break;
     }
 
   } else if (!checkDistance(limitDistance) && g)
@@ -260,11 +269,15 @@ void loop() {
     int sVal = 0, aVal = 90;
     driveMotor(sVal, aVal);
   }
-  
-//if(millis() - lastTime2 > 200){
 
-  
-//lastTime2 = millis();
-//}
-  
+
+  angulos_pub.publish(&angulos);
+  nh.spinOnce();
+
+  //if(millis() - lastTime2 > 200){
+
+
+  //lastTime2 = millis();
+  //}
+
 }
