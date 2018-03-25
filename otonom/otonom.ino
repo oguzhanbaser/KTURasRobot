@@ -30,6 +30,7 @@ ros::NodeHandle nh;
 #endif
 
 bool g = 1;
+bool otonom = 0;
 
 std_msgs::Float32MultiArray angulos;
 ros::Publisher angulos_pub("sensors", &angulos);
@@ -59,7 +60,7 @@ void controlMessage( const geometry_msgs::Twist& msg) {
 
   hiz = (int)(msg.linear.x * 20);
   aci = (int)(msg.angular.z * 10) + 90;
-  driveMotor(hiz, aci);
+  if(otonom) driveMotor(hiz, aci);
 }
 
 ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", &controlMessage );
@@ -199,7 +200,7 @@ void loop() {
     }
     lastTimeUltrasonic = millis();
   }
-
+  
   if (Serial3.available())
   {
     lastTime = millis();
@@ -215,6 +216,7 @@ void loop() {
 
         if (sVal < 0) g = 0;
         else g = 1;
+        otonom = 0;
 
         //if (checkDistance(20))
         driveMotor(sVal, aVal);
@@ -259,10 +261,12 @@ void loop() {
       case 'x':
         aVal = 90;
         sVal = 0;
+        otonom = 0;
 
         driveMotor(sVal, aVal);
         break;
       case '$':
+        otonom = 1;
         break;
     }
 
