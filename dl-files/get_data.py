@@ -6,6 +6,9 @@ import rosbag
 from std_msgs.msg import Int32, String
 from geometry_msgs.msg import Twist
 import numpy as np
+from numpy import inf
+
+import csv
 
 import cv2
 
@@ -47,7 +50,11 @@ np_scan = np_scan / range_max
 
 # print np_scan[25]
 
-print np_frame_name
+# print np_frame_name[1]
+
+np_scan[np_scan == inf] = 1.0
+
+# exit(0)
 
 # for i in range(len(np_frame_name)):
 #     # print np_frame_name[i]
@@ -60,3 +67,13 @@ np.save('my_files/np_scan', np_scan)
 np.save('my_files/np_frame_name', np_frame_name)
 np.save('my_files/np_cmd_x', np_cmd_x)
 np.save('my_files/np_cmd_y', np_cmd_y)
+
+
+myData = [['frame_name', 'scan', 'cmd_x', 'cmd_z']]
+
+for i in range(len(np_frame_name)):
+    myData.append([np_frame_name[i], np_scan[i], np_cmd_x[i], np_cmd_y[i]])
+
+with open('my_files/data.csv', 'w') as File:
+    writer = csv.writer(File)
+    writer.writerows(myData)

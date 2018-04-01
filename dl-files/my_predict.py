@@ -28,9 +28,9 @@ def callback(data):
 
     # print np_scan.shape
 
-    scan_data = np.concatenate((np_scan[0:15], np_scan[-16:-1]), axis=0)
+    scan_data = np.concatenate((np_scan[0:30], np_scan[-31:-1]), axis=0)
 
-    scan_data[np.isinf(scan_data)] = 3.5
+    scan_data[np.isinf(scan_data)] = 1.0
 
     # print scan_data.shape
 
@@ -78,11 +78,11 @@ if __name__ == '__main__':
             image_data = image_data.astype('float32')
             image_data /= 255.0
             image_data = np.reshape(image_data, [1, 240, 320, 3])
-            scan_data = np.reshape(scan_data, [1, 30])
+            scan_data = np.reshape(scan_data, [1, 60])
 
             cmd_pre =  loaded_model.predict([image_data, scan_data])
 
-            # print cmd_pre[0][0]
+            print cmd_pre[0]
 
             cmd_data.linear.x = cmd_pre[0][0]
             cmd_data.angular.z = cmd_pre[0][1]
