@@ -1,8 +1,8 @@
 
 <h1>KTU Mini Otonom Araç Takımı</h1>
 
-<img src="imgs/KTU.png" width="300px" height="300px">
-<img src="imgs/RAS.png" width="300px" height="300px">
+<center><img src="imgs/KTU.png" width="200px" height="200px"></center>
+<center><img src="imgs/RAS.png" width="200px" height="200px"></center>
 
 <h2>Biz Kimiz</h2>
 
