@@ -2,38 +2,20 @@
 #include <NewPing.h>
 #include <ros.h>
 #include <std_msgs/Float32MultiArray.h>
+#include <std_msgs/String.h>
 #include <geometry_msgs/Twist.h>
 
-#define SONAR_NUM 3      // Number of sensors.
-#define MAX_DISTANCE 200 // Maximum distance (in cm) to ping.
-
-#define MIN_SPEED 0
-#define DEFAULT_ANGLE 90
-
-#define RIGTH 0
-#define MIDDLE 1
-#define LEFT 2
-
-//#define MAKE_TEST
-
-#ifndef MAKE_TEST
-//use serial1 as a node client
-class NewHardware : public ArduinoHardware
-{
-  public:
-    NewHardware() : ArduinoHardware(&Serial1, 57600) {};
-};
-
-ros::NodeHandle_<NewHardware>  nh;
-#else
-ros::NodeHandle nh;
-#endif
+#include "configuration.h"
 
 bool g = 1;
 bool otonom = 0;
 
-std_msgs::Float32MultiArray angulos;
-ros::Publisher angulos_pub("sensors", &angulos);
+std_msgs::Float32MultiArray sensor_vals;
+std_msgs::String debug_vals;
+ros::Publisher sensor_vals_pub("sensors", &sensor_vals);
+ros::Publisher debug_publisher("debug_pub", &debug_vals);
+ros::Subscriber<std_msgs::String> command_sub("command_sub", &command_callback);
+ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", &controlMessage );
 
 Servo servo1;
 int motorDir2 = 45;
@@ -56,14 +38,32 @@ unsigned long lastTime = 0, lastTimeUltrasonic = 0, lastTime2 = 0;
 float dists[3];
 int cnt = 0;
 
-void controlMessage( const geometry_msgs::Twist& msg) {
+void command_callback(const std_msgs::String &msg)
+{
+  String tData = msg.data;
+
+  String id = tData.substring(tData.indexOf('#') + 1, tData.indexOf('|'));
+  String val = tData.substring(tData.indexOf('|') + 1);
+
+  if(id == "auto")
+  {
+    otonom = val.toInt();
+  }
+}
+
+void debug_data(String pData)
+{
+  debug_vals.data = pData.c_str();
+  debug_publisher.publish(&debug_vals);
+}
+
+void controlMessage( const geometry_msgs::Twist& msg) 
+{
 
   hiz = (int)(msg.linear.x * 20);
   aci = (int)(msg.angular.z * 10) + 90;
   if(otonom) driveMotor(hiz, aci);
 }
-
-ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", &controlMessage );
 
 double readUltraSonic(int pIndex)
 {
@@ -105,10 +105,12 @@ void setup() {
   //  Serial.begin(9600);
   Serial3.begin(9600);
 
-  angulos.data = (float *)malloc(sizeof(float) * 4);
-  angulos.data_length = 4;
-  nh.advertise(angulos_pub);
+  sensor_vals.data = (float *)malloc(sizeof(float) * 4);
+  sensor_vals.data_length = 4;
+  nh.advertise(sensor_vals_pub);
+  nh.advertise(debug_publisher);
   nh.subscribe(sub);
+  nh.subscribe(command_sub);
 
 }
 
@@ -179,7 +181,7 @@ void loop() {
   {
     dists[cnt] = readUltraSonic(cnt);
 
-    angulos.data[cnt] = dists[cnt];
+    sensor_vals.data[cnt] = dists[cnt];
 
     //    Serial.print(dists[cnt]);
     //    Serial.print(", ");
@@ -277,7 +279,7 @@ void loop() {
   }
 
 
-  angulos_pub.publish(&angulos);
+  sensor_vals_pub.publish(&sensor_vals);
   nh.spinOnce();
 
   //if(millis() - lastTime2 > 200){
